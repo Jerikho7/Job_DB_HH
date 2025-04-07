@@ -1,10 +1,17 @@
 from configparser import ConfigParser
+from typing import Dict
 
 
-def config(filename="database.ini", section="postgresql"):
-    # create a parser
+def config(filename: str = "database.ini", section: str = "postgresql") -> Dict[str, str]:
+    """
+    Получает параметры подключения к базе данных из файла конфигурации.
+
+    :param filename: Имя файла конфигурации.
+    :param section: Секция конфигурации для базы данных.
+    :return: Словарь с параметрами подключения.
+    :raises Exception: Если указанная секция не найдена в файле.
+    """
     parser = ConfigParser()
-    # read config file
     parser.read(filename)
     db = {}
     if parser.has_section(section):
