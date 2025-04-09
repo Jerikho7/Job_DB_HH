@@ -66,7 +66,8 @@ class HeadHunter:
                                     'name': vacancy.get('name'),
                                     'alternate_url': vacancy.get('alternate_url'),
                                     'salary': vacancy.get('salary'),
-                                    'published_at': vacancy.get('published_at')
+                                    'published_at': vacancy.get('published_at'),
+                                    'area': vacancy.get('area', {}).get('name')
                                 }
                                 for vacancy in vacancies
                             ]
