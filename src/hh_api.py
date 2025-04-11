@@ -38,7 +38,6 @@ class HeadHunter:
                     filtered_employer: Dict[str, Any] = {
                         'id': employer.get('id'),
                         'name': employer.get('name'),
-                        'description': employer.get('description'),
                         'area': {'name': employer.get('area', {}).get('name')},
                         'open_vacancies': employer.get('open_vacancies'),
                         'vacancies': []

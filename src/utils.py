@@ -1,4 +1,5 @@
 import psycopg2
+from typing import List, Dict, Any
 
 
 def create_database(database_name: str, params):
@@ -8,10 +9,7 @@ def create_database(database_name: str, params):
     cur = conn.cursor()
 
     cur.execute(f"DROP DATABASE IF EXISTS {database_name}")
-    print(f"Старая база данных '{database_name}' удалена (если существовала).")
-
     cur.execute(f"CREATE DATABASE {database_name}")
-    print(f"Новая база данных '{database_name}' создана.")
 
     conn.close()
 
@@ -22,13 +20,11 @@ def create_database(database_name: str, params):
             CREATE TABLE employers (
                 employer_id INTEGER PRIMARY KEY,
                 employer_name VARCHAR(255) not null,
-                description TEXT,
                 employer_area VARCHAR(255) not null,
                 employer_url TEXT,
                 open_vacancies INTEGER
             )
         """)
-        print("Таблица 'employers' успешно создана.")
 
     with conn.cursor() as cur:
         cur.execute("""
@@ -41,8 +37,52 @@ def create_database(database_name: str, params):
                 vacancy_url TEXT
             )
         """)
-        print("Таблица 'vacancies' успешно создана.")
 
     conn.commit()
     conn.close()
-    print("Создание базы данных и таблиц завершено успешно!")
+
+
+
+def insert_data_to_database(data: List[Dict[str, Any]], database_name: str, params: dict) -> None:
+    """
+    Загружает данные о работодателях и вакансиях в соответствующие таблицы базы данных.
+
+    :param data: Список словарей с данными о работодателях и их вакансиях.
+    :param database_name: Название базы данных.
+    :param params: Параметры подключения к базе данных.
+    """
+
+    conn = psycopg2.connect(dbname=database_name, **params)
+    with conn.cursor() as cur:
+        for employer in data:
+            # Вставка данных о работодателе
+            cur.execute("""
+                INSERT INTO employers (employer_id, employer_name, employer_area, employer_url, open_vacancies)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (employer_id) DO NOTHING
+            """, (
+                employer['id'],
+                employer['name'],
+                employer['area']['name'],
+                f"https://hh.ru/employer/{employer['id']}",
+                employer['open_vacancies']
+            ))
+
+            # Вставка данных о вакансиях
+            for vacancy in employer['vacancies']:
+                salary = vacancy['salary']['from'] if vacancy['salary'] and vacancy['salary'].get('from') else None
+
+                cur.execute("""
+                    INSERT INTO vacancies (vacancy_id, vacancy_name, vacancy_area, salary, employer_id, vacancy_url)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    vacancy['id'],
+                    vacancy['name'],
+                    employer['area']['name'],  # так как vacancy_area нет, берём area работодателя
+                    salary,
+                    employer['id'],
+                    vacancy['alternate_url']
+                ))
+
+    conn.commit()
+    conn.close()
