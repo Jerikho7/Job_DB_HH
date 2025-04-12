@@ -61,7 +61,7 @@ class DBManager:
             """
         )
         avg_salary = self.cur.fetchone()[0]
-        return float(avg_salary) if avg_salary else 0.0
+        return round(avg_salary, 2) if avg_salary else 0.0
 
     def get_vacancies_with_higher_salary(self) -> List[Tuple[str, str, int, str]]:
         """
