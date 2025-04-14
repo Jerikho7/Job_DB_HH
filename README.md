@@ -36,13 +36,22 @@
 pip install -r requirements.txt
 ```
 
-2. **Запустите файл `main.py`:**
+2. **Проверить подключение к PostgreSQL через `database.ini`:**
+
+```bash
+[postgres]
+host = localhost
+port = 5432
+user = postgres
+password = your_password
+```
+3. **Запустите файл `main.py`:**
 
 ```bash
 python main.py
 ```
 
-3. **Следуйте инструкциям в консоли:**
+4. **Следуйте инструкциям в консоли:**
 
 Программа предложит вам выбрать действие из списка:
 
